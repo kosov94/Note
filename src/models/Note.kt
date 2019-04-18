@@ -1,5 +1,8 @@
 package models
 
+import Const.IN_WORK
+import Const.NEED_TO_WORK
+import Const.READY
 import NoteAction
 import java.io.File
 
@@ -15,7 +18,14 @@ class Note : NoteAction {
             val reader = File(fileName).bufferedReader()
             reader.forEachLine {
                 buf = it.split("/0").toTypedArray()
-                mutableMap[Title(buf[0].toString())] = Info(buf[1].toString())
+                mutableMap[Title(buf[0].toString())] = Info(
+                    when (buf[1]) {
+                        NEED_TO_WORK -> 1
+                        IN_WORK -> 2
+                        READY -> 3
+                        else -> 4
+                    }
+                )
             }
             reader.close()
             return mutableMap
@@ -48,7 +58,7 @@ class Note : NoteAction {
     override fun saveNotes() {
         File(fileName).bufferedWriter().use { out ->
             notesMap.forEach {
-                out.write("${it.key}/0 ${it.value}/0 \n")
+                out.write("${it.key}/0${it.value}/0\n")
             }
         }
     }

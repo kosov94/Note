@@ -1,11 +1,14 @@
+import Const.IN_WORK
+import Const.NEED_TO_WORK
+import Const.READY
 import models.Info
 import models.Note
 import models.Title
 
 
 fun main(args: Array<String>) {
-    var notes: Note = Note()
-    var exit: String = "д"
+    var notes = Note()
+    var exit = "д"
     while (exit.contains("д")) {
         println("Введите название заметки(чтобы посмотреть все введите - 'все')")
         var answer: String = readLine()!!
@@ -24,8 +27,16 @@ fun main(args: Array<String>) {
                 val title = Title(answer)
                 answer = readLine()!!
                 if (answer == "д") {
-                    println("Введите текст заметки:")
-                    val info = Info(readLine()!!)
+                    do {
+                        println("Установите статус задачи")
+                        println(
+                            "1.${NEED_TO_WORK}\n" +
+                                    "2.${IN_WORK}\n" +
+                                    "3.${READY}"
+                        )
+                        answer = readLine()!!
+                    } while (answer != "1" && answer != "2" && answer != "3")
+                    val info = Info(answer.toInt())
                     notes.createNote(title, info)
                     notes.saveNotes()
                 }
