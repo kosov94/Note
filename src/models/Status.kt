@@ -4,7 +4,7 @@ import Const.IN_WORK
 import Const.NEED_TO_WORK
 import Const.READY
 
-data class Info(val status: Int){
+data class Status(val status: Int){
     override fun toString(): String {
         when(status){
             1->return NEED_TO_WORK

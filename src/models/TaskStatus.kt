@@ -3,22 +3,22 @@ package models
 import Const.IN_WORK
 import Const.NEED_TO_WORK
 import Const.READY
-import NoteAction
 import java.io.File
 
 
-class Note : NoteAction {
+class TaskStatus {
     private val fileName: String = "notes.txt"
-    private val notesMap: MutableMap<Title, Info> = loadNotes(fileName)
+    private val notesMap: MutableMap<Title, Status> = loadStatus(fileName)
 
-    private fun loadNotes(fileName: String): MutableMap<Title, Info> {
-        var mutableMap: MutableMap<Title, Info> = mutableMapOf<Title, Info>()
+
+    private fun loadStatus(fileName: String): MutableMap<Title, Status> {
+        var mutableMap: MutableMap<Title, Status> = mutableMapOf<Title, Status>()
         var buf: Array<String>
         try {
             val reader = File(fileName).bufferedReader()
             reader.forEachLine {
                 buf = it.split("/0").toTypedArray()
-                mutableMap[Title(buf[0].toString())] = Info(
+                mutableMap[Title(buf[0].toString())] = Status(
                     when (buf[1]) {
                         NEED_TO_WORK -> 1
                         IN_WORK -> 2
@@ -30,32 +30,39 @@ class Note : NoteAction {
             reader.close()
             return mutableMap
         } catch (ex: Exception) {
+            println("Списаок задач пуст.")
             return mutableMap
         }
     }
 
-    override fun createNote(title: Title, info: Info) {
-        notesMap[title] = info
+    fun createStatus(title: Title, status: Status) {
+        notesMap[title] = status
+        saveStatus()
     }
 
 
-    override fun showAllNote() {
-        for ((key, value) in notesMap)
-            println("${key}: ${value}")
+    fun getAllStaus(): MutableMap<Title, Status> {
+        return notesMap
     }
 
-    override fun getNoteById(titel: Title) {
+    fun getStatusByTitle(titel: Title): Status {
         if (notesMap.containsKey(titel))
-            println("${titel.toString()}: ${notesMap.getValue(titel).toString()}")
-
+            return notesMap.getValue(titel)
+        return Status(1)
     }
 
-    override fun deleteNote(titel: Title) {
+    fun getTitlebyStatus(status: Status) {
+        for (item in notesMap)
+            if (item.value == status)
+                println("Задача: ${item.key}\n")
+    }
+
+    fun deleteStatus(titel: Title) {
         notesMap.remove(titel)
-        println("Заметка удалена.")
+        saveStatus()
     }
 
-    override fun saveNotes() {
+    fun saveStatus() {
         File(fileName).bufferedWriter().use { out ->
             notesMap.forEach {
                 out.write("${it.key}/0${it.value}/0\n")
@@ -63,7 +70,7 @@ class Note : NoteAction {
         }
     }
 
-    override fun containsNote(titel: Title): Boolean {
+    fun containsStatus(titel: Title): Boolean {
         return notesMap.containsKey(titel)
     }
 }
